@@ -705,7 +705,7 @@ SPOTS.forEach(spot => {
       linkEl.style.display = 'none';
     }
     const gmapEl = document.getElementById('card-gmap');
-    gmapEl.href = `https://maps.google.com/?q=${spot.lat},${spot.lng}`;
+    gmapEl.href = `https://maps.google.com/?q=${encodeURIComponent(spot.name + ' ' + spot.desc.split('\n')[0])}`;
     hoverCard.classList.add('visible');
   }
 
@@ -718,7 +718,7 @@ SPOTS.forEach(spot => {
     const img = spot.image ? `<img class="rich-popup-img" src="${spot.image}" alt="${spot.name}" />` : '';
     const hours = spot.hours ? `<div class="rich-popup-hours">🕐 ${spot.hours}</div>` : '';
     const link = spot.url ? `<a class="rich-popup-link" href="${spot.url}" target="_blank" rel="noopener">🔗 公式サイトを開く</a>` : '';
-    const gmapUrl = `https://maps.google.com/?q=${spot.lat},${spot.lng}`;
+    const gmapUrl = `https://maps.google.com/?q=${encodeURIComponent(spot.name + ' ' + spot.desc.split('\n')[0])}`;
     const gmap = `<a class="rich-popup-link" href="${gmapUrl}" target="_blank" rel="noopener" style="margin-left:${spot.url ? '10px' : '0'}">📍 Google Mapで開く</a>`;
     return `
       ${img}
