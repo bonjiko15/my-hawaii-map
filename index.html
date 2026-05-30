@@ -17,7 +17,25 @@
       gap: 16px;
       border-bottom: 2px solid #f9a825;
       z-index: 1000;
+      flex-wrap: wrap;
+      transition: padding 0.3s;
     }
+    header.collapsed { padding: 10px 24px; }
+    header.collapsed .legend { display: none; }
+    #toggle-header {
+      margin-left: auto;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ccc;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      transition: background 0.2s;
+    }
+    #toggle-header:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    header.collapsed #toggle-header { margin-left: auto; }
     header h1 {
       font-size: 1.6rem;
       background: linear-gradient(90deg, #f9a825, #ff6b6b, #4ecdc4);
@@ -261,6 +279,7 @@
       <div class="legend-dot" style="background:#34d399"></div> ハワイインテリア
     </div>
   </div>
+  <button id="toggle-header">▲ 閉じる</button>
 </header>
 
 <div id="map"></div>
@@ -562,6 +581,14 @@ function updateHotelLabel() {
 }
 map.on('zoomend', updateHotelLabel);
 updateHotelLabel();
+
+// ヘッダー折りたたみ
+const toggleBtn = document.getElementById('toggle-header');
+const headerEl = document.querySelector('header');
+toggleBtn.addEventListener('click', () => {
+  const collapsed = headerEl.classList.toggle('collapsed');
+  toggleBtn.textContent = collapsed ? '▼ フィルター' : '▲ 閉じる';
+});
 
 // カテゴリフィルター（複数選択）
 const activeCategories = new Set();
