@@ -7,6 +7,26 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --popup-bg: rgba(10, 22, 40, 0.97);
+      --popup-border: rgba(249, 168, 37, 0.6);
+      --popup-color: #fff;
+      --popup-desc: #b0c4de;
+      --popup-tip-bg: rgba(10,22,40,0.92);
+      --scale-color: #fff;
+      --scale-shadow: 0 1px 3px rgba(0,0,0,0.9);
+    }
+    body.theme-light {
+      --popup-bg: rgba(255,255,255,0.97);
+      --popup-border: rgba(249, 168, 37, 0.8);
+      --popup-color: #1a1a2e;
+      --popup-desc: #445566;
+      --popup-tip-bg: rgba(255,255,255,0.95);
+      --scale-color: #333;
+      --scale-shadow: 0 1px 3px rgba(255,255,255,0.5);
+    }
+
     body { font-family: 'Georgia', serif; background: #0a1628; color: #fff; height: 100dvh; display: flex; flex-direction: column; }
 
     header {
@@ -105,17 +125,17 @@
     .leaflet-control-scale-line {
       background: transparent;
       border: none;
-      border-bottom: 2px solid #fff;
-      border-left: 2px solid #fff;
-      border-right: 2px solid #fff;
-      color: #fff;
+      border-bottom: 2px solid var(--scale-color);
+      border-left: 2px solid var(--scale-color);
+      border-right: 2px solid var(--scale-color);
+      color: var(--scale-color);
       font-size: 11px;
       font-weight: 600;
       font-family: Arial, sans-serif;
       letter-spacing: 0.5px;
       padding: 2px 6px 3px;
       white-space: nowrap;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      text-shadow: var(--scale-shadow);
       box-shadow: none;
       line-height: 1.4;
     }
@@ -123,15 +143,15 @@
 
     /* リッチポップアップ */
     .leaflet-popup-content-wrapper {
-      background: rgba(10, 22, 40, 0.97);
-      border: 1px solid rgba(249, 168, 37, 0.6);
+      background: var(--popup-bg);
+      border: 1px solid var(--popup-border);
       border-radius: 14px;
       box-shadow: 0 8px 40px rgba(0,0,0,0.7);
       padding: 0;
       overflow: hidden;
     }
-    .leaflet-popup-content { color: #fff; margin: 0; min-width: 220px; max-width: min(260px, 80vw); }
-    .leaflet-popup-tip { background: rgba(10, 22, 40, 0.97); }
+    .leaflet-popup-content { color: var(--popup-color); margin: 0; min-width: 220px; max-width: min(260px, 80vw); }
+    .leaflet-popup-tip { background: var(--popup-bg); }
     .leaflet-popup-close-button { color: #aaa !important; font-size: 18px !important; top: 8px !important; right: 10px !important; }
 
     .rich-popup-img {
@@ -147,7 +167,7 @@
       padding: 2px 7px; border-radius: 10px;
       margin-bottom: 8px; font-weight: bold;
     }
-    .rich-popup-desc { font-size: 0.8rem; color: #b0c4de; line-height: 1.5; margin-bottom: 6px; }
+    .rich-popup-desc { font-size: 0.8rem; color: var(--popup-desc); line-height: 1.5; margin-bottom: 6px; }
     .rich-popup-hours { font-size: 0.75rem; color: #86efac; margin-bottom: 6px; }
     .rich-popup-link { display: inline-block; font-size: 0.73rem; color: #60a5fa; text-decoration: none; }
     .rich-popup-link:hover { text-decoration: underline; }
@@ -290,6 +310,59 @@
       border-top: 1px solid rgba(78,205,196,0.3);
       padding-top: 8px;
     }
+
+    /* 設定ボタン */
+    #settings-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ccc;
+      border-radius: 6px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 0.72rem;
+      white-space: nowrap;
+      transition: background 0.2s;
+      touch-action: manipulation;
+      position: relative;
+    }
+    #settings-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    #settings-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #1a3a5c;
+      border: 1px solid rgba(249,168,37,0.4);
+      border-radius: 10px;
+      padding: 12px 14px;
+      min-width: 180px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      z-index: 2000;
+    }
+    #settings-panel.open { display: block; }
+    .settings-label {
+      font-size: 0.7rem;
+      color: #f9a825;
+      font-weight: bold;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .style-options { display: flex; gap: 6px; flex-direction: column; }
+    .style-btn {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #ccc;
+      border-radius: 6px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      text-align: left;
+      transition: all 0.2s;
+      touch-action: manipulation;
+    }
+    .style-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+    .style-btn.active { border-color: #f9a825; color: #f9a825; background: rgba(249,168,37,0.1); }
+    #settings-wrapper { position: relative; }
   </style>
 </head>
 <body>
@@ -321,6 +394,17 @@
     </div>
     <div class="legend-item" data-category="サーフィン">
       <div class="legend-dot" style="background:#38bdf8"></div> サーフィン
+    </div>
+  </div>
+  <div id="settings-wrapper">
+    <button id="settings-btn">⚙️ 設定</button>
+    <div id="settings-panel">
+      <div class="settings-label">🗺️ マップスタイル</div>
+      <div class="style-options">
+        <button class="style-btn active" data-style="dark">🌑 ダーク（現在）</button>
+        <button class="style-btn" data-style="light">☀️ ライト</button>
+        <button class="style-btn" data-style="standard">🗺️ 標準</button>
+      </div>
     </div>
   </div>
   <button id="toggle-header">▲ 閉じる</button>
@@ -502,11 +586,37 @@ const map = L.map('map', {
 // 距離スケールバー（ズームに応じて自動調整）
 L.control.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(map);
 
-// ダークスタイルのタイル
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
-  maxZoom: 19
+// タイルレイヤー管理
+const TILE_STYLES = {
+  dark: {
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    theme: 'dark'
+  },
+  light: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+    theme: 'light'
+  },
+  standard: {
+    url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    theme: 'light'
+  }
+};
+
+let currentTile = L.tileLayer(TILE_STYLES.dark.url, {
+  attribution: TILE_STYLES.dark.attr, maxZoom: 19
 }).addTo(map);
+
+function setMapStyle(styleKey) {
+  const style = TILE_STYLES[styleKey];
+  if (!style) return;
+  map.removeLayer(currentTile);
+  currentTile = L.tileLayer(style.url, { attribution: style.attr, maxZoom: 19 }).addTo(map);
+  document.body.classList.toggle('theme-light', style.theme === 'light');
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.toggle('active', b.dataset.style === styleKey));
+}
 
 const hoverCard = document.getElementById('hover-card');
 
@@ -681,6 +791,22 @@ const meetupMarker = L.marker([MEETUP.lat, MEETUP.lng], { icon: meetupIcon, zInd
       map.flyTo([MEETUP.lat, MEETUP.lng], targetZoom, { duration: 0.6 });
     }
   });
+
+// 設定パネル
+const settingsBtn = document.getElementById('settings-btn');
+const settingsPanel = document.getElementById('settings-panel');
+settingsBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  settingsPanel.classList.toggle('open');
+});
+document.addEventListener('click', () => settingsPanel.classList.remove('open'));
+settingsPanel.addEventListener('click', e => e.stopPropagation());
+document.querySelectorAll('.style-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    setMapStyle(btn.dataset.style);
+    settingsPanel.classList.remove('open');
+  });
+});
 
 // ヘッダー折りたたみ
 const toggleBtn = document.getElementById('toggle-header');
