@@ -297,6 +297,9 @@
     <div class="legend-item" data-category="ハワイインテリア">
       <div class="legend-dot" style="background:#34d399"></div> ハワイインテリア
     </div>
+    <div class="legend-item" data-category="サーフィン">
+      <div class="legend-dot" style="background:#38bdf8"></div> サーフィン
+    </div>
   </div>
   <button id="toggle-header">▲ 閉じる</button>
 </header>
@@ -450,6 +453,13 @@ const SPOTS = [
     url: "https://nohohomehawaii.com/en-jp/pages/store-locator",
     image: "https://nohohomehawaii.com/cdn/shop/files/IMG_6105.jpg?v=1775063560&width=800"
   },
+  // サーフィン
+  { name: "Moku Hawaii", lat: 21.275838, lng: -157.8240839, category: "サーフィン", color: "#38bdf8", emoji: "🏄",
+    desc: "2446 Koa Ave, Honolulu, HI 96815",
+    hours: "毎日 6:00am–8:30pm",
+    url: "https://mokuhawaii.surf",
+    image: "https://mokuhawaii.surf/cdn/shop/files/moku-hawaii-surf-shop-waikiki.jpg"
+  },
 ];
 
 const CATEGORY_COLORS = {
@@ -457,6 +467,7 @@ const CATEGORY_COLORS = {
   "グルメ": "#f9a825",
   "TikTok雑貨": "#a78bfa",
   "ビーチ": "#4ecdc4",
+  "サーフィン": "#38bdf8",
 };
 
 // 地図初期化（オアフ島中心）
@@ -519,6 +530,7 @@ SPOTS.forEach(spot => {
 
 
   function showCard() {
+    if (window.matchMedia('(hover: none)').matches) return;
     document.getElementById('card-emoji').textContent = spot.emoji;
     document.getElementById('card-title').textContent = spot.name;
     const catEl = document.getElementById('card-category');
@@ -569,17 +581,14 @@ SPOTS.forEach(spot => {
   marker.bindPopup(popup);
 
   marker.on('click', function() {
-    const isMobile = window.innerWidth <= 600;
-    if (isMobile) {
-      // スマホ：ピンが画面下寄りに来るようオフセット（吹き出しが上に出るスペースを確保）
-      map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
-      map.once('moveend', () => {
-        const px = map.project([spot.lat, spot.lng]);
-        px.y -= map.getSize().y * 0.22;
-        map.panTo(map.unproject(px), { animate: true, duration: 0.3 });
-      });
+    const targetZoom = 16;
+    if (window.innerWidth <= 600) {
+      // スマホ：ズーム後のピクセル空間でオフセットを事前計算してダイレクトに移動
+      const targetPx = map.project(L.latLng(spot.lat, spot.lng), targetZoom);
+      targetPx.y -= map.getSize().y * 0.22;
+      map.flyTo(map.unproject(targetPx, targetZoom), targetZoom, { duration: 0.6 });
     } else {
-      map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
+      map.flyTo([spot.lat, spot.lng], targetZoom, { duration: 0.6 });
     }
   });
 });
