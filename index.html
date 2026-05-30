@@ -67,14 +67,100 @@
 
     #map { flex: 1; }
 
-    /* カスタムポップアップ */
-    .leaflet-popup-content-wrapper {
-      background: rgba(10, 22, 40, 0.95);
-      border: 1px solid rgba(249, 168, 37, 0.6);
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    /* スケールバー（Google Maps風） */
+    .leaflet-control-scale-line {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid #fff;
+      border-left: 2px solid #fff;
+      border-right: 2px solid #fff;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: Arial, sans-serif;
+      letter-spacing: 0.5px;
+      padding: 2px 6px 3px;
+      white-space: nowrap;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      box-shadow: none;
+      line-height: 1.4;
     }
-    .leaflet-popup-tip { background: rgba(10, 22, 40, 0.95); }
+    .leaflet-control-scale { margin-bottom: 24px; margin-right: 12px; }
+
+    /* リッチポップアップ */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10, 22, 40, 0.97);
+      border: 1px solid rgba(249, 168, 37, 0.6);
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+      padding: 0;
+      overflow: hidden;
+    }
+    .leaflet-popup-content { color: #fff; margin: 0; min-width: 220px; max-width: 260px; }
+    .leaflet-popup-tip { background: rgba(10, 22, 40, 0.97); }
+    .leaflet-popup-close-button { color: #aaa !important; font-size: 18px !important; top: 8px !important; right: 10px !important; }
+
+    .rich-popup-img {
+      width: 100%; height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+    .rich-popup-body { padding: 12px 14px 14px; }
+    .rich-popup-emoji { font-size: 1.2rem; margin-bottom: 4px; }
+    .rich-popup-title { font-size: 0.95rem; font-weight: bold; color: #f9a825; margin-bottom: 6px; }
+    .rich-popup-category {
+      display: inline-block; font-size: 0.68rem;
+      padding: 2px 7px; border-radius: 10px;
+      margin-bottom: 8px; font-weight: bold;
+    }
+    .rich-popup-desc { font-size: 0.8rem; color: #b0c4de; line-height: 1.5; margin-bottom: 6px; }
+    .rich-popup-hours { font-size: 0.75rem; color: #86efac; margin-bottom: 6px; }
+    .rich-popup-link { display: inline-block; font-size: 0.73rem; color: #60a5fa; text-decoration: none; }
+    .rich-popup-link:hover { text-decoration: underline; }
+
+    /* ホテルビーコン */
+    @keyframes pulse-ring {
+      0%   { transform: scale(0.5); opacity: 0.8; }
+      100% { transform: scale(2.8); opacity: 0; }
+    }
+    .hotel-beacon {
+      position: relative;
+      width: 20px; height: 20px;
+    }
+    .hotel-beacon .ring {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(250, 204, 21, 0.35);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+    .hotel-beacon .ring:nth-child(2) { animation-delay: 0.7s; }
+    .hotel-beacon .dot {
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: #facc15;
+      border: 2px solid #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px;
+      box-shadow: 0 0 10px #facc1588;
+      z-index: 1;
+    }
+    .hotel-label {
+      position: absolute;
+      top: -28px; left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      background: rgba(10,22,40,0.92);
+      color: #facc15;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 8px;
+      border: 1px solid #facc1566;
+      pointer-events: none;
+      letter-spacing: 0.3px;
+    }
     .leaflet-popup-content { color: #fff; margin: 14px 16px; min-width: 180px; }
 
     .popup-title {
@@ -342,6 +428,9 @@ const map = L.map('map', {
   zoomControl: true,
 });
 
+// 距離スケールバー（ズームに応じて自動調整）
+L.control.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo(map);
+
 // ダークスタイルのタイル
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
@@ -420,14 +509,59 @@ SPOTS.forEach(spot => {
     hoverCard.classList.add('visible');
   }
 
+  // ホバー → 右下カード
   marker.on('mouseover', showCard);
-  marker.on('mouseout', function() { hoverCard.classList.remove('visible'); });
+  marker.on('mouseout', () => hoverCard.classList.remove('visible'));
+
+  // クリック → 吹き出しポップアップ（フル情報）
+  const popup = L.popup({ maxWidth: 260, className: '' }).setContent(() => {
+    const img = spot.image ? `<img class="rich-popup-img" src="${spot.image}" alt="${spot.name}" />` : '';
+    const hours = spot.hours ? `<div class="rich-popup-hours">🕐 ${spot.hours}</div>` : '';
+    const link = spot.url ? `<a class="rich-popup-link" href="${spot.url}" target="_blank" rel="noopener">🔗 公式サイトを開く</a>` : '';
+    return `
+      ${img}
+      <div class="rich-popup-body">
+        <div class="rich-popup-emoji">${spot.emoji}</div>
+        <div class="rich-popup-title">${spot.name}</div>
+        <div class="rich-popup-category" style="background:${spot.color}33;color:${spot.color};border:1px solid ${spot.color}55">${spot.category}</div>
+        <div class="rich-popup-desc">${spot.desc}</div>
+        ${hours}${link}
+      </div>`;
+  });
+  marker.bindPopup(popup);
 
   marker.on('click', function() {
     map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
-    showCard();
   });
 });
+
+// ホテルビーコン（Aston at the Waikiki Banyan）
+const HOTEL = { name: "🏨 Aston at the Waikiki Banyan", lat: 21.2745, lng: -157.8233 };
+
+const hotelIcon = L.divIcon({
+  className: '',
+  html: `
+    <div class="hotel-beacon">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="dot">🏨</div>
+      <div class="hotel-label">宿泊ホテル</div>
+    </div>
+  `,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
+const hotelMarker = L.marker([HOTEL.lat, HOTEL.lng], { icon: hotelIcon, zIndexOffset: 1000 })
+  .addTo(map)
+  .on('click', () => map.flyTo([HOTEL.lat, HOTEL.lng], 16, { duration: 0.6 }));
+
+function updateHotelLabel() {
+  const label = hotelMarker.getElement()?.querySelector('.hotel-label');
+  if (label) label.style.display = map.getZoom() >= 14 ? 'block' : 'none';
+}
+map.on('zoomend', updateHotelLabel);
+updateHotelLabel();
 
 // カテゴリフィルター（複数選択）
 const activeCategories = new Set();
