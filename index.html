@@ -45,19 +45,18 @@
     }
     .legend {
       display: flex;
-      gap: 6px;
+      gap: 8px;
+      margin-left: auto;
       flex-wrap: wrap;
-      flex: 1;
-      min-width: 0;
     }
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 5px;
-      font-size: 0.72rem;
+      gap: 6px;
+      font-size: 0.78rem;
       color: #ccc;
       cursor: pointer;
-      padding: 4px 9px;
+      padding: 5px 10px;
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(255,255,255,0.05);
@@ -75,7 +74,7 @@
     }
     .legend-item.dimmed { opacity: 0.35; }
     .legend-dot {
-      width: 9px; height: 9px;
+      width: 10px; height: 10px;
       border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.4);
       flex-shrink: 0;
@@ -84,9 +83,10 @@
     /* スマホ用 */
     @media (max-width: 600px) {
       header { padding: 8px 12px; gap: 8px; }
-      header h1 { font-size: 1rem; }
+      header h1 { font-size: 1rem; letter-spacing: 0.5px; }
       .legend {
         width: 100%;
+        margin-left: 0;
         overflow-x: auto;
         flex-wrap: nowrap;
         padding-bottom: 2px;
@@ -94,16 +94,7 @@
         scrollbar-width: none;
       }
       .legend::-webkit-scrollbar { display: none; }
-      #toggle-header { font-size: 0.68rem; padding: 3px 8px; }
-
-      #hover-card {
-        width: calc(100vw - 24px);
-        right: 12px;
-        left: 12px;
-        bottom: 12px;
-      }
-      #hover-card .card-img { height: 110px; }
-
+      #toggle-header { margin-left: auto; font-size: 0.68rem; padding: 3px 8px; }
       .leaflet-control-zoom { margin-top: 8px !important; margin-left: 8px !important; }
       .leaflet-control-scale { margin-bottom: 12px; margin-left: 8px; }
     }
@@ -578,7 +569,18 @@ SPOTS.forEach(spot => {
   marker.bindPopup(popup);
 
   marker.on('click', function() {
-    map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
+    const isMobile = window.innerWidth <= 600;
+    if (isMobile) {
+      // スマホ：ピンが画面下寄りに来るようオフセット（吹き出しが上に出るスペースを確保）
+      map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
+      map.once('moveend', () => {
+        const px = map.project([spot.lat, spot.lng]);
+        px.y -= map.getSize().y * 0.22;
+        map.panTo(map.unproject(px), { animate: true, duration: 0.3 });
+      });
+    } else {
+      map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
+    }
   });
 });
 
