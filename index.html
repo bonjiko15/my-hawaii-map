@@ -16,6 +16,7 @@
       --popup-tip-bg: rgba(10,22,40,0.92);
       --scale-color: #fff;
       --scale-shadow: 0 1px 3px rgba(0,0,0,0.9);
+      --marker-border: rgba(255,255,255,0.8);
     }
     body.theme-light {
       --popup-bg: rgba(255,255,255,0.97);
@@ -25,6 +26,7 @@
       --popup-tip-bg: rgba(255,255,255,0.95);
       --scale-color: #333;
       --scale-shadow: 0 1px 3px rgba(255,255,255,0.5);
+      --marker-border: rgba(30,30,30,0.45);
     }
 
     body { font-family: 'Georgia', serif; background: #0a1628; color: #fff; height: 100dvh; display: flex; flex-direction: column; }
@@ -120,6 +122,9 @@
     }
 
     #map { flex: 1; }
+    .marker-pin {
+      border: 3px solid var(--marker-border);
+    }
 
     /* スケールバー（Google Maps風） */
     .leaflet-control-scale-line {
@@ -328,9 +333,7 @@
     #settings-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
     #settings-panel {
       display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      right: 0;
+      position: fixed;
       background: #1a3a5c;
       border: 1px solid rgba(249,168,37,0.4);
       border-radius: 10px;
@@ -624,10 +627,9 @@ function createMarkerIcon(color, emoji) {
   return L.divIcon({
     className: '',
     html: `
-      <div style="
+      <div class="marker-pin" style="
         width: 36px; height: 36px;
         background: ${color};
-        border: 3px solid rgba(255,255,255,0.8);
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
         box-shadow: 0 4px 15px ${color}88;
@@ -797,7 +799,17 @@ const settingsBtn = document.getElementById('settings-btn');
 const settingsPanel = document.getElementById('settings-panel');
 settingsBtn.addEventListener('click', (e) => {
   e.stopPropagation();
-  settingsPanel.classList.toggle('open');
+  const isOpen = settingsPanel.classList.toggle('open');
+  if (isOpen) {
+    const rect = settingsBtn.getBoundingClientRect();
+    const panelWidth = 190;
+    const margin = 8;
+    let left = rect.right - panelWidth;
+    if (left < margin) left = margin;
+    if (left + panelWidth > window.innerWidth - margin) left = window.innerWidth - panelWidth - margin;
+    settingsPanel.style.top = (rect.bottom + 8) + 'px';
+    settingsPanel.style.left = left + 'px';
+  }
 });
 document.addEventListener('click', () => settingsPanel.classList.remove('open'));
 settingsPanel.addEventListener('click', e => e.stopPropagation());
