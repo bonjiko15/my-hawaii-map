@@ -7,80 +7,105 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Georgia', serif; background: #0a1628; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+    body { font-family: 'Georgia', serif; background: #0a1628; color: #fff; height: 100dvh; display: flex; flex-direction: column; }
 
     header {
       background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
-      padding: 16px 24px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 10px;
       border-bottom: 2px solid #f9a825;
       z-index: 1000;
       flex-wrap: wrap;
       transition: padding 0.3s;
     }
-    header.collapsed { padding: 10px 24px; }
+    header.collapsed { padding: 8px 16px; }
     header.collapsed .legend { display: none; }
     #toggle-header {
-      margin-left: auto;
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,255,255,0.2);
       color: #ccc;
       border-radius: 6px;
       padding: 4px 10px;
       cursor: pointer;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       white-space: nowrap;
       transition: background 0.2s;
+      touch-action: manipulation;
     }
     #toggle-header:hover { background: rgba(255,255,255,0.15); color: #fff; }
-    header.collapsed #toggle-header { margin-left: auto; }
     header h1 {
-      font-size: 1.6rem;
+      font-size: 1.2rem;
       background: linear-gradient(90deg, #f9a825, #ff6b6b, #4ecdc4);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
+      white-space: nowrap;
     }
     .legend {
       display: flex;
-      gap: 8px;
-      margin-left: auto;
+      gap: 6px;
       flex-wrap: wrap;
+      flex: 1;
+      min-width: 0;
     }
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 6px;
-      font-size: 0.78rem;
+      gap: 5px;
+      font-size: 0.72rem;
       color: #ccc;
       cursor: pointer;
-      padding: 5px 10px;
+      padding: 4px 9px;
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.15);
       background: rgba(255,255,255,0.05);
       transition: all 0.2s;
       user-select: none;
+      touch-action: manipulation;
+      white-space: nowrap;
     }
-    .legend-item:hover {
-      background: rgba(255,255,255,0.12);
-      color: #fff;
-    }
+    .legend-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .legend-item.active {
       color: #fff;
       border-color: currentColor;
       background: rgba(255,255,255,0.15);
       box-shadow: 0 0 8px rgba(255,255,255,0.2);
     }
-    .legend-item.dimmed {
-      opacity: 0.35;
-    }
+    .legend-item.dimmed { opacity: 0.35; }
     .legend-dot {
-      width: 10px; height: 10px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       border: 2px solid rgba(255,255,255,0.4);
       flex-shrink: 0;
+    }
+
+    /* スマホ用 */
+    @media (max-width: 600px) {
+      header { padding: 8px 12px; gap: 8px; }
+      header h1 { font-size: 1rem; }
+      .legend {
+        width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .legend::-webkit-scrollbar { display: none; }
+      #toggle-header { font-size: 0.68rem; padding: 3px 8px; }
+
+      #hover-card {
+        width: calc(100vw - 24px);
+        right: 12px;
+        left: 12px;
+        bottom: 12px;
+      }
+      #hover-card .card-img { height: 110px; }
+
+      .leaflet-control-zoom { margin-top: 8px !important; margin-left: 8px !important; }
+      .leaflet-control-scale { margin-bottom: 12px; margin-left: 8px; }
     }
 
     #map { flex: 1; }
@@ -114,7 +139,7 @@
       padding: 0;
       overflow: hidden;
     }
-    .leaflet-popup-content { color: #fff; margin: 0; min-width: 220px; max-width: 260px; }
+    .leaflet-popup-content { color: #fff; margin: 0; min-width: 220px; max-width: min(260px, 80vw); }
     .leaflet-popup-tip { background: rgba(10, 22, 40, 0.97); }
     .leaflet-popup-close-button { color: #aaa !important; font-size: 18px !important; top: 8px !important; right: 10px !important; }
 
@@ -199,7 +224,10 @@
     .popup-desc { font-size: 0.82rem; color: #b0c4de; line-height: 1.5; }
     .popup-emoji { font-size: 1.4rem; margin-bottom: 4px; }
 
-    /* ホバーカード（画面右下） */
+    /* ホバーカード（画面右下）- タッチデバイスでは非表示 */
+    @media (hover: none) {
+      #hover-card { display: none !important; }
+    }
     #hover-card {
       position: fixed;
       bottom: 24px;
