@@ -180,6 +180,13 @@
       box-shadow: 0 0 10px #facc1588;
       z-index: 1;
     }
+    .meetup-beacon .ring {
+      background: rgba(52, 211, 153, 0.35);
+    }
+    .meetup-beacon .dot {
+      background: #34d399;
+      box-shadow: 0 0 10px #34d39988;
+    }
     .hotel-label {
       position: absolute;
       top: -28px; left: 50%;
@@ -192,6 +199,21 @@
       padding: 3px 8px;
       border-radius: 8px;
       border: 1px solid #facc1566;
+      pointer-events: none;
+      letter-spacing: 0.3px;
+    }
+    .meetup-label {
+      position: absolute;
+      top: -28px; left: 50%;
+      transform: translateX(-50%);
+      white-space: nowrap;
+      background: rgba(10,22,40,0.92);
+      color: #34d399;
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 8px;
+      border: 1px solid #34d39966;
       pointer-events: none;
       letter-spacing: 0.3px;
     }
@@ -620,6 +642,45 @@ function updateHotelLabel() {
 }
 map.on('zoomend', updateHotelLabel);
 updateHotelLabel();
+
+// 集合場所ビーコン
+const MEETUP = { name: "集合場所（バスターミナル）", lat: 21.2764, lng: -157.8175 };
+
+const meetupIcon = L.divIcon({
+  className: '',
+  html: `
+    <div class="hotel-beacon meetup-beacon">
+      <div class="ring"></div>
+      <div class="ring"></div>
+      <div class="dot">🚌</div>
+      <div class="meetup-label">集合場所</div>
+    </div>
+  `,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
+
+const meetupPopupContent = `
+  <div style="text-align:center;margin-bottom:8px;">
+    <img src="tenshi-meetup.jpg" alt="集合場所MAP" style="width:100%;border-radius:6px;" />
+  </div>
+  <div style="font-size:0.95rem;font-weight:bold;color:#34d399;margin-bottom:4px;">🚌 集合場所（バスターミナル）</div>
+  <div style="font-size:0.8rem;color:#b0c4de;line-height:1.5;">WBM ワイキキビーチマリオット<br>パオアカラニ通り沿い バスターミナル</div>
+`;
+
+const meetupMarker = L.marker([MEETUP.lat, MEETUP.lng], { icon: meetupIcon, zIndexOffset: 999 })
+  .addTo(map)
+  .bindPopup(L.popup({ maxWidth: 300 }).setContent(meetupPopupContent))
+  .on('click', function() {
+    const targetZoom = 17;
+    if (window.innerWidth <= 600) {
+      const targetPx = map.project(L.latLng(MEETUP.lat, MEETUP.lng), targetZoom);
+      targetPx.y -= map.getSize().y * 0.22;
+      map.flyTo(map.unproject(targetPx, targetZoom), targetZoom, { duration: 0.6 });
+    } else {
+      map.flyTo([MEETUP.lat, MEETUP.lng], targetZoom, { duration: 0.6 });
+    }
+  });
 
 // ヘッダー折りたたみ
 const toggleBtn = document.getElementById('toggle-header');
