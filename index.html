@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hawaii Travel Map 🌺</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Georgia', serif; background: #0a1628; color: #fff; height: 100vh; display: flex; flex-direction: column; }
+
+    header {
+      background: linear-gradient(135deg, #1a3a5c 0%, #0d2137 100%);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-bottom: 2px solid #f9a825;
+      z-index: 1000;
+    }
+    header h1 {
+      font-size: 1.6rem;
+      background: linear-gradient(90deg, #f9a825, #ff6b6b, #4ecdc4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 2px;
+    }
+    .legend {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: #ccc;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.05);
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .legend-item:hover {
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+    }
+    .legend-item.active {
+      color: #fff;
+      border-color: currentColor;
+      background: rgba(255,255,255,0.15);
+      box-shadow: 0 0 8px rgba(255,255,255,0.2);
+    }
+    .legend-item.dimmed {
+      opacity: 0.35;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.4);
+      flex-shrink: 0;
+    }
+
+    #map { flex: 1; }
+
+    /* カスタムポップアップ */
+    .leaflet-popup-content-wrapper {
+      background: rgba(10, 22, 40, 0.95);
+      border: 1px solid rgba(249, 168, 37, 0.6);
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .leaflet-popup-tip { background: rgba(10, 22, 40, 0.95); }
+    .leaflet-popup-content { color: #fff; margin: 14px 16px; min-width: 180px; }
+
+    .popup-title {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #f9a825;
+      margin-bottom: 6px;
+    }
+    .popup-category {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+    .popup-desc { font-size: 0.82rem; color: #b0c4de; line-height: 1.5; }
+    .popup-emoji { font-size: 1.4rem; margin-bottom: 4px; }
+
+    /* ホバーカード（画面右下） */
+    #hover-card {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 300px;
+      background: rgba(10, 22, 40, 0.97);
+      border: 2px solid rgba(249, 168, 37, 0.7);
+      border-radius: 16px;
+      padding: 16px 20px;
+      z-index: 2000;
+      transform: translateY(20px);
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      box-shadow: 0 8px 40px rgba(249,168,37,0.2);
+    }
+    #hover-card.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    #hover-card .card-img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    #hover-card .card-emoji { font-size: 2rem; margin-bottom: 8px; }
+    #hover-card .card-title { font-size: 1.1rem; font-weight: bold; color: #f9a825; margin-bottom: 4px; }
+    #hover-card .card-category {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    #hover-card .card-desc { font-size: 0.85rem; color: #b0c4de; line-height: 1.6; }
+    #hover-card .card-hours { font-size: 0.78rem; color: #86efac; margin-top: 6px; }
+    #hover-card .card-link { display: inline-block; margin-top: 8px; font-size: 0.75rem; color: #60a5fa; text-decoration: none; }
+    #hover-card .card-link:hover { text-decoration: underline; }
+    #hover-card .card-tip {
+      margin-top: 10px;
+      font-size: 0.75rem;
+      color: #4ecdc4;
+      border-top: 1px solid rgba(78,205,196,0.3);
+      padding-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div style="font-size:1.6rem">🌺</div>
+  <h1>HAWAII TRAVEL MAP</h1>
+  <div class="legend">
+    <div class="legend-item" data-category="観光スポット">
+      <div class="legend-dot" style="background:#ff6b6b"></div> 観光スポット
+    </div>
+    <div class="legend-item" data-category="グルメ">
+      <div class="legend-dot" style="background:#f9a825"></div> グルメ
+    </div>
+    <div class="legend-item" data-category="TikTok雑貨">
+      <div class="legend-dot" style="background:#a78bfa"></div> TikTok雑貨
+    </div>
+    <div class="legend-item" data-category="ビーチ">
+      <div class="legend-dot" style="background:#4ecdc4"></div> ビーチ
+    </div>
+    <div class="legend-item" data-category="ハワイパズル取扱店">
+      <div class="legend-dot" style="background:#fb923c"></div> ハワイパズル取扱店
+    </div>
+    <div class="legend-item" data-category="ハワイ雑貨">
+      <div class="legend-dot" style="background:#f472b6"></div> ハワイ雑貨
+    </div>
+    <div class="legend-item" data-category="ハワイインテリア">
+      <div class="legend-dot" style="background:#34d399"></div> ハワイインテリア
+    </div>
+  </div>
+</header>
+
+<div id="map"></div>
+<div id="hover-card">
+  <img class="card-img" id="card-img" src="" alt="" style="display:none" />
+  <div class="card-emoji" id="card-emoji"></div>
+  <div class="card-title" id="card-title"></div>
+  <div class="card-category" id="card-category"></div>
+  <div class="card-desc" id="card-desc"></div>
+  <div class="card-hours" id="card-hours"></div>
+  <a class="card-link" id="card-link" href="#" target="_blank" rel="noopener"></a>
+  <div class="card-tip">📍 クリックでズーム</div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+const SPOTS = [
+  // ハワイパズル取扱店
+  {
+    name: "Broome St. General Store",
+    lat: 21.2943, lng: -157.8461,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "310 Kamakee St B, Honolulu HI 96814",
+    image: "https://www.honolulumagazine.com/content/uploads/2022/10/r/i/broome-street-general-store-1-credit-broome-street-general-store.jpg"
+  },
+  {
+    name: "Poai by Pono Potions",
+    lat: 21.3103, lng: -157.8617,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "1119 Smith St, Honolulu HI 96817",
+    image: "https://ponopotions.com/cdn/shop/files/POAI-23.jpg?v=1724740323&width=800"
+  },
+  {
+    name: "Nā Mea Hawaiʻi",
+    lat: 21.2955, lng: -157.8489,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "1200 Ala Moana Blvd, Ste 270, Honolulu HI 96814",
+    image: "https://www.nameahawaii.com/cdn/shop/files/NaMeaHawai_iInstagramposts-9.jpg?v=1778010367"
+  },
+  {
+    name: "Sugar Sugar Hawaii",
+    lat: 21.2891, lng: -157.8446,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "1450 Ala Moana Blvd 3603 3rd floor, Honolulu HI 96814",
+    image: "https://sugarsugarhi.com/cdn/shop/files/IMG-5381_533x.jpg?v=1696195999"
+  },
+  {
+    name: "Up + Riding",
+    lat: 21.2783, lng: -157.7978,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "4211 Waialae Ave, Honolulu HI 96816",
+    image: "https://iminhawaii.nyc3.cdn.digitaloceanspaces.com/nMJnXTxh6UNDgrojFswxFsfYov0AZq-metaMjczNTY2NDMyXzEwMTU3MTk1MjE0NjAyNjE0XzE2NTAyNzQ0NTQwMTg5NDI0Nl9uICgxKS5qcGc=-.jpg"
+  },
+  {
+    name: "DFS Waikiki",
+    lat: 21.2797, lng: -157.8309,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "330 Royal Hawaiian Ave, Honolulu HI 96815",
+    image: "https://front.global/wp-content/uploads/2014/03/TGalHawaii_01_1200x800.jpg"
+  },
+  {
+    name: "Laine Honolulu",
+    lat: 21.2895, lng: -157.8440,
+    category: "ハワイパズル取扱店", color: "#fb923c",
+    emoji: "🧩",
+    desc: "1450 Ala Moana Blvd #3825, Honolulu HI 96814",
+    image: "https://lainehonolulu.com/cdn/shop/files/F0ED4154-20A5-46D6-B790-4882FED518C2_1b9170d1-4752-482d-abe5-8c82670ae083.jpg?v=1769146039&width=600"
+  },
+  // ハワイ雑貨
+  {
+    name: "The Cove Collection at Shark's Cove",
+    lat: 21.6522, lng: -158.0609,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "59-712 B, Kamehameha Hwy, Haleiwa, HI 96712",
+    hours: "Mon–Sun 10:00am–6:00pm",
+    url: "https://thecovecollection.com/pages/about-us-v2",
+    image: "https://cdn.shopify.com/s/files/1/0151/0467/1844/files/IMG_7417_480x480.png?v=1694466591"
+  },
+  {
+    name: "The Cove Collection at Outrigger Reef",
+    lat: 21.2762, lng: -157.8338,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "2169 Kālia Rd, Honolulu, HI 96815",
+    hours: "Mon–Sun 9:00am–9:00pm",
+    url: "https://thecovecollection.com/pages/about-us-v2",
+    image: "https://cdn.shopify.com/s/files/1/0151/0467/1844/files/IMG_7417_480x480.png?v=1694466591"
+  },
+  {
+    name: "L'atelier de Claire",
+    lat: 21.2985, lng: -157.8600,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "801 South Street, Honolulu, HI 96813",
+    hours: "Tue–Sat 10:00am–6:00pm / Sun 10:00am–5:00pm / Mon 定休",
+    url: "https://www.latelierdeclairehi.com/contact-us"
+  },
+  {
+    name: "ディーン＆デルーカ ハワイ（ロイヤル・ハワイアン・センター店）",
+    lat: 21.2796, lng: -157.8314,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "2233 Kalakaua Ave, ロイヤル・ハワイアン・センターB館1F, Honolulu HI 96815",
+    url: "https://www.aloha-street.com/shop/4258/",
+    image: "https://data.aloha-street.com/w2/wp-content/uploads/2024/10/29002716/20250723-0832_DDH1-Exterior.jpeg"
+  },
+  {
+    name: "ハウス・オブ・マナアップ",
+    lat: 21.2798, lng: -157.8320,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "2201 Kalākaua Ave, ロイヤル・ハワイアン・センターA館1F, Honolulu HI 96815",
+    url: "https://www.aloha-street.com/shop/358744/",
+    image: "https://data.aloha-street.com/w2/wp-content/uploads/2025/12/05031107/SS1-2.png"
+  },
+  {
+    name: "SoHa Living",
+    lat: 21.2800, lng: -157.8328,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "226 Lewers St, ワイキキ・ビーチ・ウォーク1F, Honolulu HI 96815",
+    hours: "9:30〜22:00（無休）",
+    url: "https://www.sohaliving.com/",
+    image: "https://data.aloha-street.com/w2/wp-content/uploads/2010/12/17001536/IMG_8507.jpg"
+  },
+  {
+    name: "Small Kine Gift",
+    lat: 21.2821, lng: -157.7917,
+    category: "ハワイ雑貨", color: "#f472b6",
+    emoji: "🛍️",
+    desc: "3424 Waiʻalae Ave, Honolulu HI 96816",
+    image: "https://data.aloha-street.com/w2/wp-content/uploads/2025/12/03005930/IMG_7769.png"
+  },
+  // ハワイインテリア
+  {
+    name: "Noho Home Hawaii",
+    lat: 21.2897, lng: -157.8444,
+    category: "ハワイインテリア", color: "#34d399",
+    emoji: "🏡",
+    desc: "Ala Moana Mall 3F #3312 (near Target)\n1450 Ala Moana Blvd, Honolulu HI 96814",
+    hours: "Mon–Sun 10:00am–8:00pm",
+    url: "https://nohohomehawaii.com/en-jp/pages/store-locator",
+    image: "https://nohohomehawaii.com/cdn/shop/files/IMG_6105.jpg?v=1775063560&width=800"
+  },
+];
+
+const CATEGORY_COLORS = {
+  "観光スポット": "#ff6b6b",
+  "グルメ": "#f9a825",
+  "TikTok雑貨": "#a78bfa",
+  "ビーチ": "#4ecdc4",
+};
+
+// 地図初期化（オアフ島中心）
+const map = L.map('map', {
+  center: [21.3500, -157.9000],
+  zoom: 11,
+  zoomControl: true,
+});
+
+// ダークスタイルのタイル
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
+  maxZoom: 19
+}).addTo(map);
+
+const hoverCard = document.getElementById('hover-card');
+
+function createMarkerIcon(color, emoji) {
+  return L.divIcon({
+    className: '',
+    html: `
+      <div style="
+        width: 36px; height: 36px;
+        background: ${color};
+        border: 3px solid rgba(255,255,255,0.8);
+        border-radius: 50% 50% 50% 0;
+        transform: rotate(-45deg);
+        box-shadow: 0 4px 15px ${color}88;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      ">
+        <span style="
+          display: block;
+          transform: rotate(45deg);
+          text-align: center;
+          line-height: 30px;
+          font-size: 16px;
+        ">${emoji}</span>
+      </div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -38],
+  });
+}
+
+// マーカーを category ごとに保持
+const markersByCategory = {};
+
+SPOTS.forEach(spot => {
+  const marker = L.marker([spot.lat, spot.lng], {
+    icon: createMarkerIcon(spot.color, spot.emoji)
+  }).addTo(map);
+
+  if (!markersByCategory[spot.category]) markersByCategory[spot.category] = [];
+  markersByCategory[spot.category].push(marker);
+
+
+  function showCard() {
+    document.getElementById('card-emoji').textContent = spot.emoji;
+    document.getElementById('card-title').textContent = spot.name;
+    const catEl = document.getElementById('card-category');
+    catEl.textContent = spot.category;
+    catEl.style.background = spot.color + '33';
+    catEl.style.color = spot.color;
+    catEl.style.border = `1px solid ${spot.color}55`;
+    document.getElementById('card-desc').textContent = spot.desc;
+    const imgEl = document.getElementById('card-img');
+    if (spot.image) {
+      imgEl.src = spot.image;
+      imgEl.style.display = 'block';
+    } else {
+      imgEl.style.display = 'none';
+    }
+    const hoursEl = document.getElementById('card-hours');
+    hoursEl.textContent = spot.hours ? '🕐 ' + spot.hours : '';
+    const linkEl = document.getElementById('card-link');
+    if (spot.url) {
+      linkEl.href = spot.url;
+      linkEl.textContent = '🔗 公式サイトを開く';
+      linkEl.style.display = 'inline-block';
+    } else {
+      linkEl.style.display = 'none';
+    }
+    hoverCard.classList.add('visible');
+  }
+
+  marker.on('mouseover', showCard);
+  marker.on('mouseout', function() { hoverCard.classList.remove('visible'); });
+
+  marker.on('click', function() {
+    map.flyTo([spot.lat, spot.lng], 16, { duration: 0.6 });
+    showCard();
+  });
+});
+
+// カテゴリフィルター（複数選択）
+const activeCategories = new Set();
+
+function applyFilter() {
+  const allBtns = document.querySelectorAll('.legend-item');
+  const filtering = activeCategories.size > 0;
+
+  allBtns.forEach(b => {
+    const isActive = activeCategories.has(b.dataset.category);
+    b.classList.toggle('active', isActive);
+    b.classList.toggle('dimmed', filtering && !isActive);
+  });
+
+  Object.entries(markersByCategory).forEach(([category, markers]) => {
+    const show = !filtering || activeCategories.has(category);
+    markers.forEach(m => {
+      if (show) { if (!map.hasLayer(m)) map.addLayer(m); }
+      else { if (map.hasLayer(m)) map.removeLayer(m); }
+    });
+  });
+
+  hoverCard.classList.remove('visible');
+}
+
+document.querySelectorAll('.legend-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.category;
+    if (activeCategories.has(cat)) activeCategories.delete(cat);
+    else activeCategories.add(cat);
+    applyFilter();
+  });
+});
+</script>
+</body>
+</html>
