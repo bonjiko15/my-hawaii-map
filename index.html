@@ -421,8 +421,11 @@
   <div class="card-category" id="card-category"></div>
   <div class="card-desc" id="card-desc"></div>
   <div class="card-hours" id="card-hours"></div>
-  <a class="card-link" id="card-link" href="#" target="_blank" rel="noopener"></a>
-  <div class="card-tip">📍 クリックでズーム</div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+    <a class="card-link" id="card-link" href="#" target="_blank" rel="noopener"></a>
+    <a class="card-link" id="card-gmap" href="#" target="_blank" rel="noopener">📍 Google Mapで開く</a>
+  </div>
+  <div class="card-tip">👆 クリックでズーム</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -498,7 +501,7 @@ const SPOTS = [
   },
   {
     name: "The Cove Collection at Outrigger Reef",
-    lat: 21.2762, lng: -157.8338,
+    lat: 21.2779, lng: -157.8316,
     category: "ハワイ雑貨", color: "#f472b6",
     emoji: "🛍️",
     desc: "2169 Kālia Rd, Honolulu, HI 96815",
@@ -570,6 +573,10 @@ const SPOTS = [
     image: "teddy-burgar.jpg"
   },
   // サーフィン
+  { name: "Kailua Beach Adventures", lat: 21.3950, lng: -157.7381, category: "サーフィン", color: "#38bdf8", emoji: "🚣",
+    desc: "130 Kailua Rd, Kailua, HI 96734\n無料駐車場あり・ビーチまで徒歩圏内",
+    hours: "毎日 8:00am–5:00pm（日曜は島上陸許可証不可）\n※ 出発は13時前推奨（ツアーは3〜5時間）",
+  },
   { name: "Moku Hawaii", lat: 21.275838, lng: -157.8240839, category: "サーフィン", color: "#38bdf8", emoji: "🏄",
     desc: "2446 Koa Ave, Honolulu, HI 96815",
     hours: "毎日 6:00am–8:30pm",
@@ -697,6 +704,8 @@ SPOTS.forEach(spot => {
     } else {
       linkEl.style.display = 'none';
     }
+    const gmapEl = document.getElementById('card-gmap');
+    gmapEl.href = `https://maps.google.com/?q=${spot.lat},${spot.lng}`;
     hoverCard.classList.add('visible');
   }
 
@@ -709,6 +718,8 @@ SPOTS.forEach(spot => {
     const img = spot.image ? `<img class="rich-popup-img" src="${spot.image}" alt="${spot.name}" />` : '';
     const hours = spot.hours ? `<div class="rich-popup-hours">🕐 ${spot.hours}</div>` : '';
     const link = spot.url ? `<a class="rich-popup-link" href="${spot.url}" target="_blank" rel="noopener">🔗 公式サイトを開く</a>` : '';
+    const gmapUrl = `https://maps.google.com/?q=${spot.lat},${spot.lng}`;
+    const gmap = `<a class="rich-popup-link" href="${gmapUrl}" target="_blank" rel="noopener" style="margin-left:${spot.url ? '10px' : '0'}">📍 Google Mapで開く</a>`;
     return `
       ${img}
       <div class="rich-popup-body">
@@ -716,7 +727,8 @@ SPOTS.forEach(spot => {
         <div class="rich-popup-title">${spot.name}</div>
         <div class="rich-popup-category" style="background:${spot.color}33;color:${spot.color};border:1px solid ${spot.color}55">${spot.category}</div>
         <div class="rich-popup-desc">${spot.desc}</div>
-        ${hours}${link}
+        ${hours}
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">${link}${gmap}</div>
       </div>`;
   });
   marker.bindPopup(popup);
