@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ハワイ旅行スケジュール 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: #f0f4f8;
+      color: #2d3748;
+      padding: 24px;
+    }
+
+    .page {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+    }
+
+    /* ヘッダー */
+    .header {
+      background: linear-gradient(135deg, #1a6b8a 0%, #0d4f6e 60%, #1a8a7a 100%);
+      color: white;
+      padding: 40px 48px 32px;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '🌺';
+      position: absolute;
+      right: 48px;
+      top: 24px;
+      font-size: 64px;
+      opacity: 0.3;
+    }
+    .header::after {
+      content: '🌊';
+      position: absolute;
+      right: 120px;
+      bottom: 12px;
+      font-size: 40px;
+      opacity: 0.2;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .header .subtitle {
+      font-size: 15px;
+      opacity: 0.85;
+      margin-bottom: 20px;
+    }
+    .header-info {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .header-info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .header-info-item .label {
+      font-size: 11px;
+      opacity: 0.7;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .header-info-item .value {
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    /* フライト情報 */
+    .flight-section {
+      background: #f7fafc;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 48px;
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .flight-card {
+      flex: 1;
+      min-width: 280px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .flight-icon {
+      font-size: 28px;
+    }
+    .flight-detail .direction {
+      font-size: 11px;
+      color: #718096;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .flight-detail .route {
+      font-size: 16px;
+      font-weight: 700;
+      margin: 2px 0;
+    }
+    .flight-detail .time {
+      font-size: 13px;
+      color: #4a5568;
+    }
+    .flight-badge {
+      background: #ebf8ff;
+      color: #2b6cb0;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    /* メインコンテンツ */
+    .content {
+      padding: 32px 48px 48px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #718096;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    /* 日程 */
+    .days {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .day-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .day-header {
+      display: flex;
+      align-items: center;
+      padding: 14px 20px;
+      gap: 16px;
+      background: #f7fafc;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .day-badge {
+      background: #1a6b8a;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .day-badge.transit { background: #744210; }
+    .day-badge.return  { background: #276749; }
+
+    .day-title {
+      font-size: 16px;
+      font-weight: 700;
+      flex: 1;
+    }
+    .day-date {
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .day-body {
+      padding: 16px 20px;
+    }
+
+    /* タイムライン */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 16px;
+      position: relative;
+    }
+    .timeline-item:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 48px;
+      top: 28px;
+      bottom: -4px;
+      width: 2px;
+      background: #e2e8f0;
+    }
+    .timeline-time {
+      width: 52px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4a5568;
+      padding-top: 6px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #1a6b8a;
+      margin-top: 10px;
+      flex-shrink: 0;
+    }
+    .timeline-dot.highlight { background: #e53e3e; }
+    .timeline-dot.photo    { background: #d69e2e; }
+    .timeline-dot.free     { background: #38a169; }
+
+    .timeline-content {
+      flex: 1;
+      padding: 4px 0 16px;
+    }
+    .timeline-content .title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .timeline-content .desc {
+      font-size: 13px;
+      color: #718096;
+      line-height: 1.5;
+    }
+    .timeline-content .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-top: 4px;
+    }
+    .tag.flight   { background: #ebf8ff; color: #2b6cb0; }
+    .tag.hotel    { background: #faf5ff; color: #6b46c1; }
+    .tag.tour     { background: #fff5f5; color: #c53030; }
+    .tag.photo    { background: #fffff0; color: #975a16; }
+    .tag.free-tag { background: #f0fff4; color: #276749; }
+    .tag.shuttle  { background: #fffaf0; color: #c05621; }
+
+    /* 空白の日（フリー） */
+    .free-day {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      color: #38a169;
+    }
+    .free-day-icon { font-size: 24px; }
+    .free-day-text { font-size: 15px; font-weight: 600; }
+    .free-day-sub  { font-size: 13px; color: #718096; margin-top: 2px; }
+
+    /* ホテル情報 */
+    .hotel-section {
+      margin-bottom: 40px;
+    }
+    .hotel-card {
+      background: #faf5ff;
+      border: 1px solid #e9d8fd;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .hotel-icon { font-size: 32px; }
+    .hotel-info .name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .hotel-info .address { font-size: 13px; color: #718096; margin-bottom: 8px; }
+    .hotel-info .details { display: flex; gap: 12px; flex-wrap: wrap; }
+    .hotel-info .detail-item { font-size: 13px; color: #4a5568; }
+    .hotel-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #c05621;
+      background: #fffaf0;
+      border: 1px solid #fbd38d;
+      border-radius: 8px;
+      padding: 8px 12px;
+    }
+
+    /* メモ欄 */
+    .memo-section {
+      margin-bottom: 40px;
+    }
+    .memo-box {
+      border: 1px dashed #cbd5e0;
+      border-radius: 12px;
+      padding: 20px 24px;
+      min-height: 80px;
+      color: #a0aec0;
+      font-size: 14px;
+    }
+
+    /* フッター */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: #a0aec0;
+      padding: 16px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    /* 印刷用 */
+    @media print {
+      body { background: white; padding: 0; }
+      .page { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .day-badge, .timeline-dot, .flight-badge, .tag { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- ヘッダー -->
+    <div class="header">
+      <h1>🌺 Hawaii Trip 2026</h1>
+      <div class="subtitle">ルックJTB MySTYLE ホノルル ／ 成田発着 6日間</div>
+      <div class="header-info">
+        <div class="header-info-item">
+          <span class="label">旅行期間</span>
+          <span class="value">2026年6月2日（火）〜 6月7日（日）</span>
+        </div>
+        <div class="header-info-item">
+          <span class="label">宿泊</span>
+          <span class="value">ホノルル 4泊</span>
+        </div>
+        <div class="header-info-item">
+          <span class="label">予約番号</span>
+          <span class="value">D5V8J8-01</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- フライト情報 -->
+    <div class="flight-section">
+      <div class="flight-card">
+        <div class="flight-icon">✈️</div>
+        <div class="flight-detail">
+          <div class="direction">往路</div>
+          <div class="route">成田 → ホノルル</div>
+          <div class="time">6/2（火）20:30発 → 6/2（火）09:20着（現地時間）</div>
+        </div>
+        <div class="flight-badge">JL0786</div>
+      </div>
+      <div class="flight-card">
+        <div class="flight-icon">✈️</div>
+        <div class="flight-detail">
+          <div class="direction">復路</div>
+          <div class="route">ホノルル → 成田 → 新千歳</div>
+          <div class="time">6/6（土）13:35発 → 6/7（日）16:45着 ／ 6/8（月）07:10発 → 08:55着</div>
+        </div>
+        <div class="flight-badge">JL0785</div>
+      </div>
+    </div>
+
+    <!-- メインコンテンツ -->
+    <div class="content">
+
+      <!-- 日程 -->
+      <div class="section-title">日程</div>
+      <div class="days">
+
+        <!-- Day 1 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge transit">Day 1</div>
+            <div class="day-title">出発 → ホノルル到着</div>
+            <div class="day-date">6月2日（火）</div>
+          </div>
+          <div class="day-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">14:50</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">MM576 新千歳発 → 成田着</div>
+                  <div class="desc">Peach Aviation ／ 新千歳 14:50発 → 成田 16:35着</div>
+                  <span class="tag flight">国内線</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">16:35</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">成田空港 着 → 第2ターミナルへ移動</div>
+                  <div class="desc">国際線チェックインカウンターへ。夕食など済ませる</div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">19:00</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">成田空港 第2ターミナル 集合</div>
+                  <div class="desc">出発90分前までにJALカウンターでチェックイン</div>
+                  <span class="tag shuttle">送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">20:30</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">JL0786 成田発</div>
+                  <div class="desc">エコノミークラス・機内食あり ／ 日付変更線通過</div>
+                  <span class="tag flight">フライト 約8時間</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">09:20</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">ホノルル国際空港 着</div>
+                  <div class="desc">現地時間 6/2（日本時間は6/3）／ 入国審査 → 荷物受け取り → 税関</div>
+                  <span class="tag flight">到着</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">〜11:00</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">JTBカウンターで手続き → ホテルへ送迎</div>
+                  <div class="desc">団体出口（Exit 1）を出て左奥のJTBカウンターへ。オリオリエアポート・エクスプレス（混乗車）に乗車。<br>
+                  降車場所を8箇所から選択：アラモアナ・センター／プリンス ワイキキ／ヒルトン・ハワイアン・ビレッジ／ザ・アンバサダー・オブ・ワイキキ・タペストリー・コレクション／シェラトン ワイキキ／ハイアット リージェンシー／アロヒラニ リゾート／ワイキキ・ビーチ・マリオット</div>
+                  <span class="tag shuttle">混乗送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">午後〜</div>
+                <div class="timeline-dot free"></div>
+                <div class="timeline-content">
+                  <div class="title">自由行動</div>
+                  <div class="desc">チェックイン・ワイキキ散策など</div>
+                  <span class="tag free-tag">フリー</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">要連絡</div>
+                <div class="timeline-dot photo"></div>
+                <div class="timeline-content">
+                  <div class="title">📞 レイウエディングへ到着連絡</div>
+                  <div class="desc">ハワイ到着後、必ず連絡する<br>
+                  📞 808-955-9855<br>
+                  ✉️ leiweddinghawaii@gmail.com</div>
+                  <span class="tag photo">ウェディングフォト 前日確認</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 2 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge">Day 2</div>
+            <div class="day-title">ウェディングフォト</div>
+            <div class="day-date">6月3日（水）</div>
+          </div>
+          <div class="day-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">10:30</div>
+                <div class="timeline-dot photo"></div>
+                <div class="timeline-content">
+                  <div class="title">🚗 ホテルお迎え → サロンへ</div>
+                  <div class="desc">チアリスチルローズ（レイウエディング）にてお打ち合わせ・衣装合わせ・ロコスタイルのヘアメイクスタート<br>1860 Ala Moana Blvd Ste 401, Honolulu HI 96815</div>
+                  <span class="tag photo">RS-007969</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">11:45</div>
+                <div class="timeline-dot photo"></div>
+                <div class="timeline-content">
+                  <div class="title">💄 新婦様のヘアメイクスタート</div>
+                  <div class="desc"></div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">13:00</div>
+                <div class="timeline-dot photo"></div>
+                <div class="timeline-content">
+                  <div class="title">📸 ビーチにて撮影開始</div>
+                  <div class="desc">チアリスチルビーチフォトプラン</div>
+                  <span class="tag photo">ウェディングフォト</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">14:15</div>
+                <div class="timeline-dot photo"></div>
+                <div class="timeline-content">
+                  <div class="title">✅ 撮影終了・着替え → ホテルへ送迎</div>
+                  <div class="desc"></div>
+                  <span class="tag shuttle">送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">14:15〜</div>
+                <div class="timeline-dot free"></div>
+                <div class="timeline-content">
+                  <div class="title">自由行動</div>
+                  <div class="desc">観光・ショッピング・ビーチなど</div>
+                  <span class="tag free-tag">フリー</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 3 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge">Day 3</div>
+            <div class="day-title">天使の海ピクニック・セイル</div>
+            <div class="day-date">6月4日（木）</div>
+          </div>
+          <div class="day-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">09:35</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🚌 集合：ワイキキ・ビーチ・マリオット</div>
+                  <div class="desc">バスターミナル / パオアカラニ通り ／ 出発10分前に集合<br>水着着用・日焼け止め・タオル持参</div>
+                  <span class="tag tour">リファレンス: S100308682</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">09:45</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🚌 ワイキキ地区ホテル出発</div>
+                  <div class="desc">往復送迎込み</div>
+                  <span class="tag shuttle">送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">10:45〜</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🐢 カネオヘ湾 到着・ボート乗船</div>
+                  <div class="desc">ウミガメ・ウォッチング</div>
+                  <span class="tag tour">オプションツアー</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">11:00〜</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">⛵ 天使の海（サンドバー）到着</div>
+                  <div class="desc">シュノーケル・ウォーターバレーボール等<br>昼食（ベジタリアンバーガー 1名分申込済み）・お飲み物付き<br>シュノーケル用具・ライフベスト・浮具 無料レンタル</div>
+                  <span class="tag tour">2名参加</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">13:00〜</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🐠 サンゴ礁エリアでシュノーケル</div>
+                  <div class="desc"></div>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">14:30〜</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">🚌 カネオヘ湾 帰港・出発</div>
+                  <div class="desc"></div>
+                  <span class="tag shuttle">送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">15:30〜</div>
+                <div class="timeline-dot free"></div>
+                <div class="timeline-content">
+                  <div class="title">ワイキキ地区ホテル帰着</div>
+                  <div class="desc">以降は自由行動</div>
+                  <span class="tag free-tag">フリー</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 4 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge">Day 4</div>
+            <div class="day-title">ダイアモンドヘッド登頂 ＆ 自由行動</div>
+            <div class="day-date">6月5日（金）</div>
+          </div>
+          <div class="day-body">
+            <div style="background:#fff5f5; border:1px solid #fed7d7; border-radius:8px; padding:10px 14px; margin-bottom:14px; font-size:13px; color:#c53030;">
+              ⚠️ <b>事前予約必須</b>：入園は予約制。朝6時枠は開放直後（30日前）に売り切れることが多い。早めに予約を。<a href="https://gostateparks.hawaii.gov/diamondhead" style="color:#2b6cb0;">gostateparks.hawaii.gov/diamondhead</a>
+            </div>
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">05:45</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🚗 ホテル出発（Uber）</div>
+                  <div class="desc">Aston at the Waikiki Banyan → ダイアモンドヘッド州立公園 ／ 約10〜15分（約3km）</div>
+                  <span class="tag shuttle">Uber</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">06:00</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">🏔️ ダイアモンドヘッド 入園・登頂開始</div>
+                  <div class="desc">開園：毎日6:00〜18:00（最終入園16:30）／ 往復1.6マイル・標高差170m・急な階段あり<br>動きやすい靴・水・日焼け止め持参</div>
+                  <span class="tag tour">所要約1.5〜2時間</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">08:00〜</div>
+                <div class="timeline-dot free"></div>
+                <div class="timeline-content">
+                  <div class="title">🚗 ホテルへ帰着 → 自由行動</div>
+                  <div class="desc">シャワー後、観光・ショッピング・ビーチなど</div>
+                  <span class="tag free-tag">フリー</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 5 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge">Day 5</div>
+            <div class="day-title">ホノルル滞在</div>
+            <div class="day-date">6月6日（土）</div>
+          </div>
+          <div class="day-body">
+            <div class="free-day">
+              <div class="free-day-icon">🌊</div>
+              <div>
+                <div class="free-day-text">午前 自由行動</div>
+                <div class="free-day-sub">※予定を追加予定</div>
+              </div>
+            </div>
+            <div class="timeline" style="margin-top:12px;">
+              <div class="timeline-item">
+                <div class="timeline-time">〜発前</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">ホテル〜空港 送迎</div>
+                  <div class="desc">乗車券に記載の集合時間・場所を確認</div>
+                  <span class="tag shuttle">混乗送迎</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">13:35</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">JL0785 ホノルル発</div>
+                  <div class="desc">エコノミークラス・機内食あり（機中泊）</div>
+                  <span class="tag flight">フライト 約9時間</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 6 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge return">Day 6</div>
+            <div class="day-title">帰国 → 成田泊</div>
+            <div class="day-date">6月7日（日）</div>
+          </div>
+          <div class="day-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">16:45</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">成田空港 着（第2ターミナル）</div>
+                  <div class="desc">入国審査 → 荷物受け取り</div>
+                  <span class="tag flight">帰国</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">〜18:00</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">🏨 成田東武ホテルエアポート チェックイン</div>
+                  <div class="desc">チェックイン：18:00 ／ チェックアウト：翌6/8 11:00<br>※翌朝フライトのため早朝出発</div>
+                  <span class="tag hotel">ホテル泊</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Day 7 -->
+        <div class="day-card">
+          <div class="day-header">
+            <div class="day-badge return">Day 7</div>
+            <div class="day-title">札幌へ帰宅</div>
+            <div class="day-date">6月8日（月）</div>
+          </div>
+          <div class="day-body">
+            <div class="timeline">
+              <div class="timeline-item">
+                <div class="timeline-time">早朝</div>
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                  <div class="title">ホテル出発 → 成田空港 第3ターミナルへ</div>
+                  <div class="desc">チェックアウトは11:00だが、フライトに合わせ早朝出発</div>
+                  <span class="tag shuttle">移動</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">07:10</div>
+                <div class="timeline-dot highlight"></div>
+                <div class="timeline-content">
+                  <div class="title">成田発 → 新千歳着</div>
+                  <div class="desc">成田 第3ターミナル 07:10発 → 新千歳 08:55着 ／ Airbus A320-200</div>
+                  <span class="tag flight">国内線 約1時間45分</span>
+                </div>
+              </div>
+              <div class="timeline-item">
+                <div class="timeline-time">08:55</div>
+                <div class="timeline-dot free"></div>
+                <div class="timeline-content">
+                  <div class="title">新千歳空港 着 → 帰宅</div>
+                  <div class="desc">国内線ターミナルビル</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /days -->
+
+      <!-- ホテル -->
+      <div class="hotel-section">
+        <div class="section-title">宿泊ホテル</div>
+        <div class="hotel-card">
+          <div class="hotel-icon">🏨</div>
+          <div class="hotel-info">
+            <div class="name">Aston at the Waikiki Banyan</div>
+            <div class="address">201 Ohua Ave, Honolulu, HI ／ TEL: 1-808-922-0555</div>
+            <div class="details">
+              <span class="detail-item">📅 6/2チェックイン 〜 6/6チェックアウト（4泊）</span>
+              <span class="detail-item">🛏 1ベッドルーム・バスタブ有</span>
+              <span class="detail-item">📋 JTB Ref: D5V8J8</span>
+            </div>
+            <div class="hotel-note">⚠️ 6階プール・ジャクジー等メンテナンス中（〜2026年6月30日予定）。代替プールなし。</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 成田ホテル -->
+      <div style="margin-bottom:24px;">
+        <div class="hotel-card" style="background:#f0fff4; border-color:#c6f6d5;">
+          <div class="hotel-icon">🏨</div>
+          <div class="hotel-info">
+            <div class="name">成田東武ホテルエアポート</div>
+            <div class="address">成田空港近接</div>
+            <div class="details">
+              <span class="detail-item">📅 6/7（日）18:00チェックイン 〜 6/8（月）11:00チェックアウト（1泊）</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- メモ -->
+      <div class="memo-section">
+        <div class="section-title">持ち物・メモ</div>
+        <div class="memo-box">
+          パスポート・ESTA取得済み確認 ／ 海外旅行保険証書 ／ JTBオリオリリゾートアプリ（事前インストール）<br>
+          HiBus乗車券（オリオリカード） ／ クレジットカード（デポジット用）
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+      <!-- 現地サービス案内 -->
+      <div class="section-title">現地サービス・ご案内</div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:40px;">
+
+        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:16px 20px;">
+          <div style="font-weight:700; font-size:15px; margin-bottom:8px;">🏪 オリオリプラザ（JTB現地デスク）</div>
+          <div style="font-size:13px; color:#4a5568; line-height:1.8;">
+            ハワイに精通したスタッフが滞在中のご相談にお応えします。<br>
+            <b>シェラトン ワイキキ ビーチ リゾート</b>　正面玄関横階段下　毎日 8:00〜17:00<br>
+            <b>ハイアット リージェンシー ワイキキ ビーチ リゾート&amp;スパ</b>　2階山側　毎日 8:00〜17:00
+          </div>
+        </div>
+
+        <div style="border:1px solid #e2e8f0; border-radius:12px; padding:16px 20px;">
+          <div style="font-weight:700; font-size:15px; margin-bottom:8px;">🚌 HiBus（ワイキキ周辺巡回トロリーバス）</div>
+          <div style="font-size:13px; color:#4a5568; line-height:1.8;">
+            滞在中乗り放題。乗車時にオリオリカードをご提示ください。<br>
+            停留所・ルート・運行スケジュール：<a href="https://www.oliolihawaii.com/bus" style="color:#2b6cb0;">oliolihawaii.com/bus</a><br>
+            <span style="color:#c05621;">※ 天候・交通状況により運行ルート・停留所が変更となる場合があります。ご宿泊ホテルによっては停留所が徒歩圏内にない場合があります。</span>
+          </div>
+        </div>
+
+      </div>
+
+    <div class="footer">
+      Hawaii Trip 2026 ／ JTB MySTYLE ホノルル ／ 予約番号: D5V8J8-01
+    </div>
+
+  </div>
+</body>
+</html>
