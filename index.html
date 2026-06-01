@@ -404,9 +404,10 @@
     <div id="settings-panel">
       <div class="settings-label">🗺️ マップスタイル</div>
       <div class="style-options">
-        <button class="style-btn active" data-style="dark">🌑 ダーク（現在）</button>
+        <button class="style-btn" data-style="color">🎨 カラー</button>
+        <button class="style-btn" data-style="dark">🌑 ダーク</button>
         <button class="style-btn" data-style="light">☀️ ライト</button>
-        <button class="style-btn" data-style="standard">🗺️ 標準</button>
+        <button class="style-btn active" data-style="standard">🗺️ 標準（現在）</button>
       </div>
     </div>
   </div>
@@ -566,6 +567,18 @@ const SPOTS = [
     image: "https://nohohomehawaii.com/cdn/shop/files/IMG_6105.jpg?v=1775063560&width=800"
   },
   // グルメ
+  { name: "Mai Tai Bar（The Royal Hawaiian）", lat: 21.2793, lng: -157.8319, category: "グルメ", color: "#f9a825", emoji: "🍹",
+    desc: "2259 Kalakaua Ave., Honolulu, HI 96815\nワイキキビーチ（ロイヤルハワイアン）",
+    hours: "バー 10:00〜24:00 / ランチ 11:00〜15:30 / ディナー 15:30〜23:00",
+    tel: "(+1) 808-921-4600",
+    url: "https://maps.google.com/?q=Mai+Tai+Bar+Royal+Hawaiian+2259+Kalakaua+Ave+Honolulu+HI+96815",
+  },
+  { name: "Nalu Health Bar & Café WAIKIKI", lat: 21.2796, lng: -157.8311, category: "グルメ", color: "#f9a825", emoji: "🥗",
+    desc: "226 Lewers St, Honolulu, HI 96815",
+    hours: "毎日 7:00〜19:00",
+    tel: "(+1) 808-425-4710",
+    url: "https://maps.google.com/?q=Nalu+Health+Bar+%26+Café+226+Lewers+St+Honolulu+HI+96815",
+  },
   { name: "テディーズビガーバーガー", lat: 21.3957, lng: -157.7396, category: "グルメ", color: "#f9a825", emoji: "🍔",
     desc: "539 Kailua Rd #101, Kailua, HI 96734",
     hours: "毎日 10:00–21:00",
@@ -605,6 +618,11 @@ L.control.scale({ position: 'bottomleft', imperial: false, metric: true }).addTo
 
 // タイルレイヤー管理
 const TILE_STYLES = {
+  color: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+    attr: '© <a href="https://www.esri.com/">Esri</a> © OpenStreetMap contributors',
+    theme: 'light'
+  },
   dark: {
     url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
     attr: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/">CARTO</a>',
@@ -622,8 +640,8 @@ const TILE_STYLES = {
   }
 };
 
-let currentTile = L.tileLayer(TILE_STYLES.dark.url, {
-  attribution: TILE_STYLES.dark.attr, maxZoom: 19
+let currentTile = L.tileLayer(TILE_STYLES.standard.url, {
+  attribution: TILE_STYLES.standard.attr, maxZoom: 19
 }).addTo(map);
 
 function setMapStyle(styleKey) {
